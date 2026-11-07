@@ -1,5 +1,4 @@
 # main.py
-# Точка входа. Полностью русский интерфейс.
 
 from mansion import (
     add_clue, count_clues, describe, visit_room,
@@ -15,6 +14,17 @@ ROOM_MAP = {
     "подвал": "basement",
     "чердак": "attic",
     "выход": "exit"
+}
+
+# Русские названия комнат для вывода игроку (вместо поиска через next)
+ROOM_NAMES_RU = {
+    "hall": "холл",
+    "library": "библиотека",
+    "study": "кабинет",
+    "bedroom": "спальня",
+    "basement": "подвал",
+    "attic": "чердак",
+    "exit": "входная дверь"
 }
 
 COMMAND_MAP = {
@@ -99,8 +109,7 @@ while True:
         if current_room == "hall":
             if target_room in ["library", "study", "bedroom", "basement", "attic", "exit"]:
                 current_room = target_room
-                room_name_ru = next(k for k, v in ROOM_MAP.items() if v == current_room)
-                print(f"Вы прошли в {room_name_ru}.")
+                print(f"Вы прошли в {ROOM_NAMES_RU[current_room]}.")
                 visit_room(current_room)
             else:
                 print("Из холла можно пойти только в: библиотека, кабинет, спальня, подвал, чердак, выход.")
@@ -114,17 +123,28 @@ while True:
 
     elif command == "look":
         print(describe(current_room))
-        room_name_ru = next(k for k, v in ROOM_MAP.items() if v == current_room)
 
-        if current_room == "library" and "В библиотеке найдена перчатка с монограммой" not in clues:
+        if current_room == "hall" and "У входной двери на ковре свежие капли грязи — кто-то только что пришёл с улицы" not in clues:
+            add_clue(clues, "У входной двери на ковре свежие капли грязи — кто-то только что пришёл с улицы.")
+            print("Вы заметили деталь: капли грязи у двери!")
+        elif current_room == "library" and "В библиотеке найдена перчатка с монограммой" not in clues:
             add_clue(clues, "В библиотеке найдена перчатка с монограммой.")
             print("Вы заметили деталь: перчатка с монограммой!")
+        elif current_room == "study" and "В кабинете в пепельнице сигарета с редким сортом табака" not in clues:
+            add_clue(clues, "В кабинете в пепельнице сигарета с редким сортом табака.")
+            print("Вы заметили деталь: дорогая сигарета в пепельнице!")
+        elif current_room == "bedroom" and "Возле кровати в спальне свежие царапины на паркете" not in clues:
+            add_clue(clues, "Возле кровати в спальне свежие царапины на паркете.")
+            print("Вы заметили деталь: царапины на паркете у кровати!")
         elif current_room == "basement" and "В подвале на стене выцарапаны странные символы" not in clues:
             add_clue(clues, "В подвале на стене выцарапаны странные символы.")
             print("Вы заметили деталь: странные символы на стене!")
         elif current_room == "attic" and "На чердаке найдена карта с пометками" not in clues:
             add_clue(clues, "На чердаке найдена карта с пометками.")
             print("Вы заметили деталь: карта с пометками!")
+        elif current_room == "exit" and "Замочная скважина входной двери залита воском" not in clues:
+            add_clue(clues, "Замочная скважина входной двери залита воском.")
+            print("Вы заметили деталь: воск в замочной скважине!")
 
     elif command == "take":
         item = raw_arg
@@ -211,6 +231,7 @@ while True:
 
     else:
         print("Неизвестная команда. Введите 'помощь' для списка команд.")
+
 
 
 
