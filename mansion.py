@@ -37,8 +37,7 @@ def get_long_clues(clues_list):
 
 def format_clues(clues_list):
     return [f"Улика: {c}" for c in clues_list]
-
-    return [f"Улика: {c}" for c in clues_list]
+    
 
 
 
