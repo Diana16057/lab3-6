@@ -1,33 +1,16 @@
 # main.py
 import random
+
+import mansion  # импортируем сам модуль — флаги будем читать через точку
 from mansion import (
     add_clue, count_clues, describe, visit_room,
-    get_long_clues, format_clues, clues, visited_rooms,
+    get_long_clues, format_clues,
     show_help, try_move, look_room, take_item, use_item,
-    has_key, lantern_taken, letter_taken, map_taken  # импортируем флаги, если нужно (опционально)
+    get_ending,
+    clues
 )
 
-# --- КОНФИГУРАЦИЯ ---
-ROOM_MAP = {
-    "холл": "hall",
-    "библиотека": "library",
-    "кабинет": "study",
-    "спальня": "bedroom",
-    "подвал": "basement",
-    "чердак": "attic",
-    "выход": "exit"
-}
-
-ROOM_NAMES_RU = {
-    "hall": "холл",
-    "library": "библиотека",
-    "study": "кабинет",
-    "bedroom": "спальня",
-    "basement": "подвал",
-    "attic": "чердак",
-    "exit": "входная дверь"
-}
-
+# --- КОНФИГУРАЦИЯ: перевод русских команд и комнат в английские ключи ---
 COMMAND_MAP = {
     "иди": "go",
     "осмотри": "look",
@@ -39,8 +22,29 @@ COMMAND_MAP = {
     "выход": "exit"
 }
 
+ROOM_MAP = {
+    "холл": "hall",
+    "библиотека": "library",
+    "кабинет": "study",
+    "спальня": "bedroom",
+    "подвал": "basement",
+    "чердак": "attic",
+    "выход": "exit"
+}
+
+# Русские названия комнат для вывода игроку
+ROOM_NAMES_RU = {
+    "hall": "холл",
+    "library": "библиотека",
+    "study": "кабинет",
+    "bedroom": "спальня",
+    "basement": "подвал",
+    "attic": "чердак",
+    "exit": "входная дверь"
+}
+
+# --- НАЧАЛО ИГРЫ ---
 current_room = "hall"
-turn_counter = 0
 
 print("Квест-детектив: Таинственный особняк")
 print("Цель: соберите улики, найдите ключ и откройте выход.")
@@ -62,20 +66,20 @@ while True:
 
     command = COMMAND_MAP.get(raw_command, raw_command)
     target_room = None
-    
+
     if command == "go":
         target_room = ROOM_MAP.get(raw_arg, raw_arg)
 
     # --- СЛУЧАЙНЫЕ СОБЫТИЯ ---
     if command not in ["clues", "inventory", "help"]:
         if random.random() < 0.3:
-            events = [
+            event = random.choice([
                 "Скрипнула половица где-то вдалеке.",
                 "Хлопнула дверь на втором этаже.",
                 "В темноте мелькнула тень.",
                 "Тишину нарушает тихий шёпот."
-            ]
-            print(random.choice(events))
+            ])
+            print(event)
 
     # --- ОБРАБОТКА КОМАНД ---
 
@@ -86,9 +90,9 @@ while True:
         if not target_room:
             print("Используйте: иди [название комнаты]. Например: иди библиотека")
             continue
-        
+
         new_room, message = try_move(current_room, target_room, ROOM_NAMES_RU)
-        if new_room:
+        if new_room is not None:
             current_room = new_room
             print(message)
             visit_room(current_room)
@@ -121,35 +125,38 @@ while True:
                 print(f"  {c}")
         else:
             print("Длинных улик пока нет.")
-        
         print("Полный список улик:")
         for formatted in format_clues(clues):
             print(f"  {formatted}")
 
     elif command == "inventory":
         inv = []
-        if has_key: inv.append("ключ")
-        if lantern_taken: inv.append("фонарь")
-        if letter_taken: inv.append("письмо")
-        if map_taken: inv.append("карта")
-        
+        if mansion.has_key:
+            inv.append("ключ")
+        if mansion.lantern_taken:
+            inv.append("фонарь")
+        if mansion.letter_taken:
+            inv.append("письмо")
+        if mansion.map_taken:
+            inv.append("карта")
+
         if inv:
             print("В инвентаре: " + ", ".join(inv))
         else:
             print("Инвентарь пуст.")
 
     elif command == "exit":
-        if current_room == "exit" and has_key:
-            print("Вы вставили ключ, повернули его... Щелчок! Дверь распахнулась.")
-            print("Поздравляем, вы выбрались из особняка!")
-            break
-        elif current_room != "exit":
-            print("Сначала дойдите до входной двери (иди выход).")
-        else:
+        if current_room != "exit":
+            print("Сначала дойдите до входной двери (команда: иди выход).")
+        elif not mansion.has_key:
             print("Дверь заперта. Нужен ключ!")
+        else:
+            print(get_ending(count_clues(clues)))
+            break
 
     else:
         print("Неизвестная команда. Введите 'помощь' для справки.")
+
 
 
 

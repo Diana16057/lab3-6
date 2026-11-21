@@ -118,6 +118,7 @@ def look_room(current_room):
 
 def take_item(current_room, item_name):
     """Обрабатывает команду 'возьми'. Возвращает True, если предмет взят."""
+    # ЭТА СТРОКА ДОЛЖНА БЫТЬ ПЕРВОЙ ВНУТРИ ФУНКЦИИ
     global has_key, lantern_taken, letter_taken, map_taken
 
     item_name = item_name.lower()
@@ -144,6 +145,7 @@ def take_item(current_room, item_name):
 
     print("Такого предмета здесь нет или вы уже взяли его.")
     return False
+
 
 
 
